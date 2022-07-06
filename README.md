@@ -11,6 +11,7 @@
 - [X] 十、以上全自動腳本
 
 ## 檔案架構
+```
 -  LinuxHomeWork           #專案目錄
  |-  container_module      #container相關檔案
  |-  log_module            #log相關檔案
@@ -22,7 +23,7 @@
  |-  UserAdd_Install.sh    #新增使用者及安裝套件的ShellScritp
  |-  CreateContainer.sh    #安裝Container的ShellScritp
  |-  fakeLog.sh            #產生假Log的
-
+```
 
 
 ## .env
