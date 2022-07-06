@@ -1,0 +1,10 @@
+# 建立運行環境的容器映像檔
+FROM docker.io/library/maven:3.8.6-openjdk-8
+
+RUN mkdir -p /opt/project
+COPY hello/ /opt/project/
+RUN mkdir -p /root/.m2
+COPY .m2/ /root/.m2
+RUN cd /opt/project && mvn package 1>/dev/null
+
+CMD ["java", "-jar", "/opt/project/target/hello-0.0.1-SNAPSHOT.jar"]

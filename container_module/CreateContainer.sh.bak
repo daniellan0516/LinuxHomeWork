@@ -1,0 +1,83 @@
+#!/usr/bin/bash
+echo "export XDG_RUNTIME_DIR=/run/user/$(id -u)" > ~/.bashrc
+username=vfepadm
+XDG_RUNTIME_DIR=/run/user/$(id -u)
+REMOVE_OLD_POD=true
+ip=$(ip addr | grep 192.168 | awk -F" " '{print $2}' | awk -F/ '{print $1}')
+
+# 刪除舊的pod
+if [ "$REMOVE_OLD_POD" == "true" ]; 
+then
+  [ "$(podman pod ps | awk 'NR>1')" ] &&
+  echo "刪除舊的Pod" &&
+  ~/container_module/ClearPod.sh
+fi
+
+# 解tar檔
+sudo chown -R $username:$username *
+tar -xf ctbc_o360.tar
+tar -xf o360api.tar
+tar -xf hello.tar
+tar -xf .m2.tar
+
+# 修改properties
+sed -i "s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$ip/g" \
+  ctbc_o360/etc/db.properties && \
+sed -i '37 s/49200/49201/' o360api/application.properties && \
+sed -i '39 s/true/false/' o360api/application.properties && \
+sed -i '71 s/49201/49200/' o360api/application.properties && \
+
+# 建立DB COontainer
+echo -e "\\033[33m===== 建立DB Container =====\\033[0m"
+podman pod create --name postgresql -p 5432:5432 -p 9187:9187
+podman run -d --pod postgresql -e POSTGRES_PASSWORD=1234 docker.io/library/postgres:latest
+podman cp data.sql \
+  $(podman ps | grep postgres:latest | awk '{print $1}'):/var/lib/postgresql
+
+podman exec -ti $(podman ps | grep postgres:latest | awk '{print $1}') su postgres -c \
+"cat << EOF | psql
+  CREATE USER o360 WITH PASSWORD '1234'; 
+  CREATE DATABASE ctbcdb TEMPLATE template0 ENCODING 'UTF-8';
+  ALTER DATABASE ctbcdb OWNER TO o360;
+  GRANT ALL PRIVILEGES ON DATABASE ctbcdb TO o360;
+EOF
+" 
+podman exec -ti $(podman ps | grep postgres:latest | awk '{print $1}') \
+  su postgres -c "psql -U o360 -d ctbcdb -a -f /var/lib/postgresql/data.sql 1>/dev/null"
+
+# 建立O360 Container
+echo -e "\\033[33m===== 建立o360 Container =====\\033[0m"
+podman pod create --name o360_uapc1 --network podman \
+  -p 40000:40000/tcp -p 49200:49200/tcp -p 49201:49201/tcp
+podman build -f Dockerfile-o360-o360api-Daniel -t ctbc_test:v1 . && \
+podman run -d --pod o360_uapc1 $(podman images | grep v1 | awk '{print $3}')
+
+# 建立Maven Container
+echo -e "\\033[33m===== 安裝Maven Container ======\\033[0m"
+podman pod create --name maven -p 8080:8080
+podman build -f Dockerfile-Maven -t mvn-webserver && \
+podman run -d --pod maven $(podman images | grep mvn-webserver | awk '{print $3}')
+
+# 建立Container的Systemclt service
+echo -e "\\033[33m===== 設定Container Service ======\\033[0m"
+mkdir -p ~/.config/systemd/user/ && \
+loginctl enable-linger $username && \
+podman pod ps | awk 'NR>1' | while read line;
+do
+  podname=$(echo $line | awk -F' ' '{print $2}')
+  podman generate systemd --restart-policy always --restart-sec 30 --name --files $podname 
+done && \
+
+mv *.service ~/.config/systemd/user/ && \
+ls ~/.config/systemd/user/pod*.service | while read line; 
+do 
+  systemctl enable --user --now $line 1>/dev/null 2>/dev/null
+done
+
+# 設定使用者的crontab
+echo -e "\\033[33m===== 設定Crontab ======\\033[0m"
+sudo crontab -u vfepadm $HOME/log_module/schedule_task  
+cat $HOME/log_module/schedule_task && \
+echo s5640434 | sudo -S systemctl start crond
+
+echo -e "\\033[31m===== 安裝完成了 =====\\033[0m"

@@ -1,0 +1,71 @@
+# TU 編譯環境
+FROM rockylinux:8.5 AS builder
+
+ARG user=vfepadm
+ARG group=941fep
+
+ENV O360USER=$user O360GROUP=$group KERNELFILE=o360_install_20220117_Linux_DAO_C_master_f507ff1.tar.bz2
+
+RUN groupadd -g 1000 $group && useradd -m -s "/bin/ksh" $user -u 1000 -g 1000 && \
+    echo -e 'alias logname=whoami\n.  ~/o360/bin/Profile.fun \n  set -o vi \numask 002 \nexport TERM=vt100 \nPS1="${HOSTNAME} (\$LOGNAME):\$PWD>"' > /home/$user/.profile && \
+    cat /home/$user/.profile >> /home/$user/.bashrc && \
+    cat /home/$user/.profile >> /home/$user/.kshrc && \
+    chown -R 1000:1000 /home/$user
+
+RUN dnf install -y -q --nodocs ksh procps java-1.8.0-openjdk-headless java-1.8.0-openjdk-devel \
+    langpacks-zh_TW gcc make dos2unix glibc-devel ncurses bzip2 1>/dev/null && \
+    dnf clean all 1>/dev/null
+
+COPY --chown=$user:$group ctbc_o360 /home/$user
+
+RUN cp /home/$user/container/${KERNELFILE} /home/$user && \
+    cd /home/$user && tar jxf ${KERNELFILE} && \
+    cp /home/$user/container/install.sh /home/$user && \
+    chown -R 1000:1000 /home/$user
+
+
+USER 1000
+WORKDIR /home/$user
+
+RUN /home/$user/install.sh && cd /home/$user/o360 && mkdir -p prod && cp -r log dat backup jsn lib bin etc prod
+
+
+# 建立運行環境的容器映像檔
+FROM rockylinux:8.5
+
+ARG user=vfepadm
+ARG group=941fep
+
+ENV O360USER=$user O360GROUP=$group UNUSE_REMOTE_CMD=1
+
+RUN groupadd -g 1000 $group && useradd -m -s "/bin/ksh" $user -u 1000 -g 1000 && \
+    echo -e 'alias logname=whoami\n.  ~/o360/bin/Profile.fun \n  set -o vi \numask 002 \nexport TERM=vt100 \nPS1="${HOSTNAME} (\$LOGNAME):\$PWD>"' > /home/$user/.profile && \
+    cat /home/$user/.profile >> /home/$user/.bashrc && \
+    cat /home/$user/.profile >> /home/$user/.kshrc && \
+    mkdir -p /home/$user/o360
+
+COPY --chown=$user:$group --from=builder /home/$user/o360/prod /home/$user/o360/
+COPY --chown=$user:$group o360api /home/$user
+
+RUN dnf install -y -q --nodocs ksh procps java-1.8.0-openjdk-headless dos2unix langpacks-zh_TW net-tools \
+    telnet ncurses vim 1>/dev/null && dnf clean all && \ 
+    mkdir -p /tmp/start && mkdir -p /tmp/script && \
+    curl -L https://download.oracle.com/otn-pub/otn_software/jdbc/215/ojdbc8.jar \
+      -o /home/$user/o360/lib/ojdbc8.jar 1>/dev/null && \
+    echo '#!/bin/sh' > /tmp/start/start.sh && \
+    echo 'cd /tmp/script/;if [ x"$(find . -name script.sh)" != x"" ]; then mkdir -p /tmp/innerScript; cp -r * /tmp/innerScript; cd /tmp/innerScript; ./script.sh; fi ' >> /tmp/start/start.sh && \
+    echo 'while [ 1 ]; do sleep 5; done' >> /tmp/start/start.sh && \
+    chown -R 1000:1000 /tmp/start/ && chmod u+x /tmp/start/start.sh && dos2unix /tmp/start/start.sh && \
+    chown 1000:1000 "/home/$user/.profile" && \
+    chown 1000:1000 "/home/$user/.kshrc" && \
+    echo '/home/vfepadm/o360/bin/StartAll.sh' >> /home/$user/start.sh && \
+    echo '/home/vfepadm/o360/bin/StartOneChannel.sh UAPC' >> /home/$user/start.sh && \
+    echo '/home/vfepadm/APIServer.sh start' >> /home/$user/start.sh && \
+    chmod u+x /home/$user/start.sh && \
+    chown -R 1000:1000 /home/$user 
+
+USER 1000
+
+WORKDIR /home/$user
+
+CMD ["nohup", "java", "-DLOG_FILE=api", "-Dspring.profiles.active=adm,op", "-jar", "/home/vfepadm/APIServer.jar", "1>/dev/null"]

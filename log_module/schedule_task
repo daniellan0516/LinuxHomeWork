@@ -1,0 +1,4 @@
+*/1 * * * * /home/vfepadm/log_module/CheckProcess.sh
+*/1 * * * * /home/vfepadm/log_module/CheckConnect.sh
+@daily /home/vfepadm/log_module/zipLog /home/vfepadm/log/$(date -d "$(date)-1 days" +'%F')
+10 * * * * /home/vfepadm/log_module/sendLog.sh
