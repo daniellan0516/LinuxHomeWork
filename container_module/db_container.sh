@@ -8,10 +8,10 @@ db_container() {
 
   podman exec -ti $(podman ps | grep postgres:latest | awk '{print $1}') su postgres -c \
   "psql << EOF
-CREATE USER o360 WITH PASSWORD '1234'; 
-CREATE DATABASE ctbcdb TEMPLATE template0 ENCODING 'UTF-8';
-ALTER DATABASE ctbcdb OWNER TO o360;
-GRANT ALL PRIVILEGES ON DATABASE ctbcdb TO o360;
+    CREATE USER o360 WITH PASSWORD '1234'; 
+    CREATE DATABASE ctbcdb TEMPLATE template0 ENCODING 'UTF-8';
+    ALTER DATABASE ctbcdb OWNER TO o360;
+    GRANT ALL PRIVILEGES ON DATABASE ctbcdb TO o360;
 EOF
   " && \
   podman exec -ti $(podman ps | grep postgres:latest | awk '{print $1}') \
