@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 USER=vfepadm
-PASSWD=s5640434
+PASSWORD=s5640434
 PORT_LIST="40000 5432 9876 49200 49201 8080"
 INSTALL_PODMAN=true
 INSTALL_TELNET=true
@@ -28,8 +28,9 @@ then
   echo -e "\\033[33m"===== 使用者檢查 ====="\\033[0m"
   if [ "$(id $USER 2>/dev/null)" == "" ];
   then
-    sudo useradd $USER && sudo passwd --stdin $USER 1>/dev/null && \ 
-    echo "使用者$USER不存在，新增使用者$USER:$PASSWD。"
+    sudo useradd $USER && \
+    echo $PASSWORD | sudo passwd --stdin $USER 1>/dev/null && \
+    echo "使用者$USER不存在，新增使用者$USER:$PASSWORD。"
   else
     echo "$USER已建立"
   fi

@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 echo -e "\\033[33m===== 關閉及刪除Pod(Container會一併執行) =====\\033[0m"
-[ "$(ls ~/.config/systemd/user)" ] &&
+[ -d "~/.config/systemd/user" ] && [ "$(ls ~/.config/systemd/user)" ] &&
 ls ~/.config/systemd/user | grep pod- | awk -F. '{print  $1}' | while read line;
 do
   systemctl --user disable --now $line

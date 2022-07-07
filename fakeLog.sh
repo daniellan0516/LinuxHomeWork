@@ -1,4 +1,4 @@
 for i in {1..40000000};
 do
-  ./CheckPrecess.sh
+  ./log_module/CheckPrecess.sh
 done
