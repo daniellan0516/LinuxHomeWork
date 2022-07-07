@@ -32,7 +32,7 @@ then
     echo $PASSWORD | sudo passwd --stdin $USER 1>/dev/null && \
     echo "使用者$USER不存在，新增使用者$USER:$PASSWORD。"
   else
-    echo "$USER已建立"
+    echo "$USER已存在"
   fi
 
   if [ "$(id $USER | grep wheel 2>/dev/null)" == "" ];
@@ -45,10 +45,16 @@ fi
 # 複製檔案
 if [ -d "/home/$USER" ];
 then
+  # 複製專案資料
   sudo cp -r * /home/$USER && \
   echo "複製檔案到$USER家目錄"
-  [ -f ~/.ssh/authorized_keys ] && sudo cp -r /home/rockylinux/.ssh /home/$USER/ && \
-  echo "複製金鑰到$USRT家目錄"
+
+  # 複製金鑰
+  SUPER_AUTH=$(md5sum $HOME/.ssh/authorized_keys | awk -F" " '{print $1}')
+  USER_AUTH=$(md5sum /home/$USER/.ssh/id_rsa.pub | awk -F" " '{print $1}')
+  [ ! -f "~/.ssh/authorized_keys" ] || [ "$SUPER_AUTH" != "$USER_AUTH" ] && 
+    sudo cp -r $HOME/.ssh /home/$USER/ && echo "複製金鑰到$USRT家目錄"
+  
   sudo chown -R $USER:$USER /home/$USER
 fi
 
