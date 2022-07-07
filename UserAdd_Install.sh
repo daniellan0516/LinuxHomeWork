@@ -51,7 +51,7 @@ then
 
   # 複製金鑰
   SUPER_AUTH=$(md5sum $HOME/.ssh/authorized_keys | awk -F" " '{print $1}')
-  USER_AUTH=$(md5sum /home/$USER/.ssh/id_rsa.pub | awk -F" " '{print $1}')
+  USER_AUTH=$(sudo md5sum /home/$USER/.ssh/id_rsa.pub | awk -F" " '{print $1}')
   [ ! -f "~/.ssh/authorized_keys" ] || [ "$SUPER_AUTH" != "$USER_AUTH" ] && 
     sudo cp -r $HOME/.ssh /home/$USER/ && echo "複製金鑰到$USRT家目錄"
   

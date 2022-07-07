@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 PORCESS_LIST=("APIServer.jar" "postgres" "hello")
 LOG_DIR=/home/$(whoami)/log/$(date +'%F')
-LOG_FILE=$LOG_DIR/prcess-$(date +'%F').log
+LOG_FILE=$LOG_DIR/process-$(date +'%F').log
 
 
 # 檢查資料夾
