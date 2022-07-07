@@ -11,27 +11,42 @@
 - [X] 十、以上全自動腳本
 
 ## 檔案架構
-```
--  LinuxHomeWork           #專案目錄
- |-  container_module      #container相關檔案
- |-  log_module            #log相關檔案
-    |-  CheckConnection.sh #檢查連線狀況的ShellScript
-    |-  CheckProcess.sh    #檢查運行狀況的ShellScript
-    |-  sendLog.sh         #備份log的ShellScript
-    |-  zipLog.sh          #壓縮log的ShellScript
-    |-  schedule_task      #crontab的腳本
- |-  UserAdd_Install.sh    #新增使用者及安裝套件的ShellScritp
- |-  CreateContainer.sh    #安裝Container的ShellScritp
- |-  fakeLog.sh            #產生假Log的
-```
+> 公司的產品檔案並沒有放上來
 
-
-## .env
-`updateVM`、`clearVM`都是寫在在`.env`檔內，若是沒有安裝`direnv`等類似套件，需執行`source .env`
+```
+[  ]LinuxHomeWork/                         > 專案目錄
+   [  ].env                                  # 環境設定檔
+ [  ]container_module/                       > 容器相關目錄
+   [  ]init.sql                                # 建立使用者及資料庫
+   [  ]data.sql                                # 資料庫資料
+   [  ]create_pod_service.sh                   # 建立systemclt *****.service檔
+   [  ]db_container.sh                         # 建立資料庫容器
+   [  ]o360_container.sh                       # 建立AppServer的容器
+   [  ]webserver_container.sh                  # 建立WebServer容器
+   [  ]RemovePod.sh                            # 刪除Pod的腳本
+   [  ]ctbc_o360.tar                           # CTBC的SourceCode
+   [  ]Dockerfile-Maven                        # WebServer的DockerFile
+   [  ]Dockerfile-o360-o360api-Daniel          # O360的DockerFile
+   [  ]hello.tar                               # WebServer的SourceCode
+   [  ]o360api.tar                             # O360API的SourceCode
+ [  ]log_module/                             > log相關目錄
+   [  ]Backup_Del_Log.sh                       # 備份log
+   [  ]CheckConnection.sh                      # 檢查連線
+   [  ]CheckProcess.sh                         # 檢查程序
+   [  ]ZipLog.sh                               # 壓縮log
+   [  ]schedule_task                           # crontab
+ [  ]CreateContainer.sh                      # 建立容器腳本
+ [  ]fakeLog.sh                              # 假資料
+ [  ]RemoveUser.sh                           # 刪除使用者
+ [  ]UserAdd_Install.sh                      # 新增使用者及安裝套件
+```
 
 ## 容器
 - DataBase : postgres(repository:docker.io)
 - AppServer: o360 & o360api(tar)
 - WebServer: hello(tar)
 
-
+## 使用方法
+1. 進入專案目錄後，執行`source .env`(或利用direnv相關套件，修改.env檔名)
+2. 修改*.sh檔案內變數
+3. 執行`updateVM`或`clearVM`
