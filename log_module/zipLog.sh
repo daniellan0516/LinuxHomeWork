@@ -20,5 +20,5 @@ then
   exit 0
 fi
 
-echo "無效的檔案或路徑"
+echo "$1:無效的檔案或路徑"
 exit 1

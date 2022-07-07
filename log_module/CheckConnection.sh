@@ -38,7 +38,7 @@ result="$(curl -X POST -o /dev/null -s -w "%{http_code}\n" http://$ip:49200/o360
 if [ "$result" != "200" ];
 then
   echo "http://$ip:49200/o360api/op/status/channel -> $result @ $(date +'%F %T')" >> $LOG_FILE
-  [ ! "$(netstat -nap | grep :::8080 | awk '$4 ~ /:49200$/')" ] && \
+  [ ! "$(netstat -nap | grep :::49200 | awk '$4 ~ /:49200$/')" ] && \
   systemctl --user restart container-o360
   echo "8080服務重啟" >> $LOG_FILE
 else
