@@ -54,18 +54,20 @@ RUN dnf install -y -q --nodocs ksh procps java-1.8.0-openjdk-headless dos2unix l
       -o /home/$user/o360/lib/ojdbc8.jar 1>/dev/null && \
     echo '#!/bin/sh' > /tmp/start/start.sh && \
     echo 'cd /tmp/script/;if [ x"$(find . -name script.sh)" != x"" ]; then mkdir -p /tmp/innerScript; cp -r * /tmp/innerScript; cd /tmp/innerScript; ./script.sh; fi ' >> /tmp/start/start.sh && \
-    echo 'while [ 1 ]; do sleep 5; done' >> /tmp/start/start.sh && \
     chown -R 1000:1000 /tmp/start/ && chmod u+x /tmp/start/start.sh && dos2unix /tmp/start/start.sh && \
     chown 1000:1000 "/home/$user/.profile" && \
     chown 1000:1000 "/home/$user/.kshrc" && \
+    echo '#!/bin/sh' > /home/$user/start.sh && \
     echo '/home/vfepadm/o360/bin/StartAll.sh' >> /home/$user/start.sh && \
     echo '/home/vfepadm/o360/bin/StartOneChannel.sh UAPC' >> /home/$user/start.sh && \
-    echo '/home/vfepadm/APIServer.sh start' >> /home/$user/start.sh && \
+    echo 'source ~/.bashrc && /home/vfepadm/APIServer.sh start' >> /home/$user/start.sh && \
+    echo 'while [ 1 ]; do sleep 5; done' >> /home/$user/start.sh && \
+    dos2unix /home/$user/start.sh && \
     chmod u+x /home/$user/start.sh && \
     chown -R 1000:1000 /home/$user 
 
 USER 1000
-
 WORKDIR /home/$user
 
-CMD ["nohup", "java", "-DLOG_FILE=api", "-Dspring.profiles.active=adm,op", "-jar", "/home/vfepadm/APIServer.jar", "1>/dev/null"]
+#CMD ["nohup", "java", "-DLOG_FILE=api", "-Dspring.profiles.active=adm,op", "-jar", "/home/vfepadm/APIServer.jar", "1>/dev/null"]
+CMD ["/home/vfepadm/start.sh"]
