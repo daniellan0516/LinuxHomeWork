@@ -7,6 +7,7 @@ INSTALL_DB=true
 INSTALL_O360=true
 INSTALL_WEBSERVER=true
 CREATE_POD_SERVICE=true
+SET_CRONTAB=true
 
 ip=$(ip addr | grep 192.168 | awk -F" " '{print $2}' | awk -F/ '{print $1}')
 
@@ -40,20 +41,8 @@ webserver_container && ANY_POD_INSTALLED=true
 source container_module/create_pod_service.sh && \
 create_pod_service
 
-# 設定使用者的crontab
-echo -e "\\033[33m===== 設定Crontab ======\\033[0m"
-
-if [ "$(crontab -l | wc -l)" -gt 0 ];
-then
-  echo rockylinux | su -c "echo \"===== $(whoami) crontab backup @$(date) =====\" >> /home/rockylinux/crontab_backup" rockylinux 1>>/dev/null
-  echo "備份$username的crontab"
-  echo rockylinux | su -c "sudo crontab -u $username -l >> /home/rockylinux/crontab_backup" rockylinux 1>/dev/null
-fi
-
-sudo crontab -u vfepadm $HOME/log_module/schedule_task  
-echo "載入新的crontab"
-cat $HOME/log_module/schedule_task && \
-sudo -S systemctl start crond
-
+# 設定crontab
+[ "$SET_CRONTAB" = "true" ] && \
+source log_module/cronatab.sh
 
 echo -e "\\033[31m===== 安裝完成了 =====\\033[0m"
