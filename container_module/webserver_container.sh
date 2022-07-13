@@ -16,6 +16,6 @@ webserver_container() {
   echo -e "\\033[33m===== 安裝Maven Container ======\\033[0m" && \
   podman pod create --name maven -p 8080:8080 && \
   podman build -f Dockerfile-Maven -t mvn-webserver && \
-  podman run -d --pod maven --name webserver $(podman images | grep mvn-webserver | awk '{print $3}')
+  podman run -d --pod maven --name webserver --tz=Asia/Taipei $(podman images | grep mvn-webserver | awk '{print $3}')
   cd ..
 }

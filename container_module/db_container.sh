@@ -2,7 +2,7 @@ db_container() {
   cd container_module
   echo -e "\\033[33m===== 建立DB Container =====\\033[0m" && \
   podman pod create --name postgresql -p 5432:5432 -p 9187:9187 && \
-  podman run -d --pod postgresql --name db -e POSTGRES_PASSWORD=1234 docker.io/library/postgres:latest && \
+  podman run -d --pod postgresql --name db -e POSTGRES_PASSWORD=1234 --tz=Asia/Taipei docker.io/library/postgres:latest && \
   podman cp data.sql \
     $(podman ps | grep postgres:latest | awk '{print $1}'):/var/lib/postgresql && \
 

@@ -15,6 +15,6 @@ o360_container() {
   podman pod create --name o360_uapc1 --network podman \
     -p 40000:40000/tcp -p 49200:49200/tcp -p 49201:49201/tcp && \
   podman build -f Dockerfile-o360-o360api-Daniel -t ctbc_test:v1 . && \
-  podman run -d --pod o360_uapc1 --name o360 $(podman images | grep v1 | awk '{print $3}')
+  podman run -d --pod o360_uapc1 --name o360 --tz=Asia/Taipei $(podman images | grep v1 | awk '{print $3}')
   cd ..
 }
