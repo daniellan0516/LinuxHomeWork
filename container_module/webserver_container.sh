@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 webserver_container() {
-  POD_NAME=webserver
-  CONTAINER_NAME=webserver
+  POD_NAME=WEB_POD
+  CONTAINER_NAME=WEB_SERVER
 
   cd container_module
   tar -xf hello.tar && \

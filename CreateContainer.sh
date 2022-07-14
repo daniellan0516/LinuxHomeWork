@@ -14,6 +14,9 @@ ip=$(ip addr | grep 192.168 | awk -F" " '{print $2}' | awk -F/ '{print $1}')
 # 修改檔案權限
 sudo chown -R $username:$username *
 
+# 移除crontab
+[ -f "$HOME/RestoreCron.sh" ] && $HOME/RestoreCron.sh
+
 # 刪除舊的pod
 [ "$REMOVE_OLD_POD" = "true" ] && [ "$(podman pod ps | awk 'NR>1')" ] &&
 echo -e "\\033[33m===== 刪除舊的Pod =====\\033[0m" && \
@@ -43,6 +46,6 @@ create_pod_service
 
 # 設定crontab
 [ "$SET_CRONTAB" = "true" ] && \
-source log_module/cronatab.sh
+source log_module/crontab.sh && \
 
 echo -e "\\033[31m===== 安裝完成了 =====\\033[0m"
