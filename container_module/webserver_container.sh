@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 webserver_container() {
+  POD_NAME=webserver
+  CONTAINER_NAME=webserver
+
   cd container_module
   tar -xf hello.tar && \
   tar -xf .m2.tar && \
@@ -12,10 +15,10 @@ webserver_container() {
   sed -i '71 s/49201/49200/' o360api/application.properties && \
 
 
-
-  echo -e "\\033[33m===== 安裝Maven Container ======\\033[0m" && \
-  podman pod create --name maven -p 8080:8080 && \
+  echo -e "\\033[33m===== 安裝Maven Container ======\\033[0m"
+  [ "$(podman pod ps | grep $POD_NAME)" = "" ] && 
+  podman pod create --name $POD_NAME -p 8080:8080
   podman build -f Dockerfile-Maven -t mvn-webserver && \
-  podman run -d --pod maven --name webserver --tz=Asia/Taipei $(podman images | grep mvn-webserver | awk '{print $3}')
+  podman run -d --pod $POD_NAME --name $CONTAINER_NAME --tz=Asia/Taipei $(podman images | grep mvn-webserver | awk '{print $3}')
   cd ..
 }

@@ -15,9 +15,9 @@ ip=$(ip addr | grep 192.168 | awk -F" " '{print $2}' | awk -F/ '{print $1}')
 sudo chown -R $username:$username *
 
 # 刪除舊的pod
-[ "$REMOVE_OLD_POD" == "true" ] && [ "$(podman pod ps | awk 'NR>1')" ] &&
+[ "$REMOVE_OLD_POD" = "true" ] && [ "$(podman pod ps | awk 'NR>1')" ] &&
 echo -e "\\033[33m===== 刪除舊的Pod =====\\033[0m" && \
-~/container_module/ClearPod.sh
+~/container_module/RemovePod.sh
 
 # 建立DB COontainer
 [ "$INSTALL_DB" = "true" ] &&
