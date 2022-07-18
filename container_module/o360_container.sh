@@ -5,6 +5,7 @@ o360_container() {
   cd container_module
   tar -xf ctbc_o360.tar && \
   tar -xf o360api.tar && \
+  tar -xf o360_fix_package.tar && \
   sudo chown -R "$(whoami):$(whoami)" * && \
 
   # echo "修改properties"

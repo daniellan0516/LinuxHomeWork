@@ -1,6 +1,6 @@
 o360api.tar
-ctbc_o360.tar
-ctbc_o360/
+ctbc_o360*
+o360_fix_package*
 package.tar.gz
 Dockerfile-o360-o360api-Daniel
 data.sql

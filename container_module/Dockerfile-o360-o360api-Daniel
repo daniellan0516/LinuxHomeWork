@@ -46,6 +46,7 @@ RUN groupadd -g 1000 $group && useradd -m -s "/bin/ksh" $user -u 1000 -g 1000 &&
 
 COPY --chown=$user:$group --from=builder /home/$user/o360/prod /home/$user/o360/
 COPY --chown=$user:$group o360api /home/$user
+COPY --chown=$user:$group o360_fix_pacakge /home/$user/o360/etc
 
 RUN dnf install -y -q --nodocs ksh procps java-1.8.0-openjdk-headless dos2unix langpacks-zh_TW net-tools \
     telnet ncurses vim 1>/dev/null && dnf clean all && \ 
